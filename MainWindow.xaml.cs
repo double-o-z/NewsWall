@@ -1,17 +1,7 @@
 ﻿using Microsoft.Web.WebView2.Wpf;
 using System;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Forms;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace NewsWall.Views;
 
@@ -29,15 +19,6 @@ public partial class MainWindow : Window
 
         Loaded += (_, __) =>
         {
-            // c14View.CoreWebView2InitializationCompleted += (_, __) =>
-            // {
-            //     c14View.CoreWebView2.OpenDevToolsWindow();
-            // };
-
-            // i24View.CoreWebView2InitializationCompleted += (_, __) =>
-            // {
-            //     i24View.CoreWebView2.OpenDevToolsWindow();
-            // };
         };
     }
 
