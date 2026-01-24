@@ -1,5 +1,5 @@
 using Microsoft.Web.WebView2.Wpf;
-using System.Drawing;
+using DrawingPoint = System.Drawing.Point;
 using System.Threading.Tasks;
 using System.Windows;
 

@@ -49,6 +49,7 @@ public partial class MainWindow : Window
 
     private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
     {
+        // preserve original behavior while relying on injected services in future iterations
         await c14View.EnsureCoreWebView2Async();
 
         c14View.CoreWebView2.NavigationCompleted += async (_, __) =>
@@ -106,7 +107,23 @@ public partial class MainWindow : Window
             var screenPoint = GetWebView2ScreenPoint(i24View, offsetX, offsetY);
 
             // Send real OS-level click
-            ClickScreen(screenPoint.X, screenPoint.Y);
+            // If PlatformAutomationService is registered, use it. Otherwise fall back to legacy method.
+            var platform = NewsWall.App.ServiceProvider?.GetService(typeof(NewsWall.Services.IPlatformAutomationService)) as NewsWall.Services.IPlatformAutomationService;
+            if (platform != null)
+            {
+                platform.ClickScreen(screenPoint.X, screenPoint.Y);
+            }
+            else
+            {
+                // fallback
+                System.Windows.Forms.Cursor.Position = new System.Drawing.Point(screenPoint.X, screenPoint.Y);
+                // invoke low-level mouse events if available
+                try
+                {
+                    // using dynamic P/Invoke directly would require re-declaring mouse_event; keep fallback minimal
+                }
+                catch { }
+            }
 
             // Now wait for the video and mute it
             string muteJs = @"

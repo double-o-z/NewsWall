@@ -13,6 +13,7 @@ namespace NewsWall;
 public partial class App : Application
 {
     private ServiceProvider? _serviceProvider;
+    public static IServiceProvider? ServiceProvider { get; private set; }
 
     protected override void OnStartup(StartupEventArgs e)
     {
@@ -24,6 +25,7 @@ public partial class App : Application
         services.AddSingleton<MainViewModel>();
 
         _serviceProvider = services.BuildServiceProvider();
+        ServiceProvider = _serviceProvider;
 
         var main = new Views.MainWindow();
         main.DataContext = _serviceProvider.GetRequiredService<MainViewModel>();
