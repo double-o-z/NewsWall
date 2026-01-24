@@ -41,19 +41,6 @@ public partial class MainWindow : Window
         };
     }
 
-    [DllImport("user32.dll")]
-    static extern void mouse_event(uint dwFlags, uint dx, uint dy, uint dwData, UIntPtr dwExtraInfo);
-
-    const uint MOUSEEVENTF_LEFTDOWN = 0x0002;
-    const uint MOUSEEVENTF_LEFTUP = 0x0004;
-
-    private void ClickScreen(int x, int y)
-    {
-        System.Windows.Forms.Cursor.Position = new System.Drawing.Point(x, y);
-        mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, UIntPtr.Zero);
-        mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, UIntPtr.Zero);
-    }
-
     private System.Drawing.Point GetWebView2ScreenPoint(WebView2 view, int offsetX, int offsetY)
     {
         var relative = view.PointToScreen(new System.Windows.Point(offsetX, offsetY));
@@ -108,7 +95,7 @@ public partial class MainWindow : Window
 
         i24View.CoreWebView2.NavigationCompleted += async (_, __) =>
         {
-            // Wait for Flutter to initialize
+                // Wait for Flutter to initialize 
             await Task.Delay(5000);
 
             // Your calibrated offsets inside the WebView2 control
