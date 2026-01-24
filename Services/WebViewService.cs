@@ -6,6 +6,8 @@ namespace NewsWall.Services;
 
 public class WebViewService : IWebViewService
 {
+    private readonly System.Collections.Concurrent.ConcurrentDictionary<WebView2, byte> _initialized = new();
+
     public async Task EnsureCoreWebView2Async(WebView2 view)
     {
         await view.EnsureCoreWebView2Async();
