@@ -84,6 +84,7 @@ Tasks to perform (up to 5)
 
 Tasks successfully performed
 - [2026-01-24] Added `CommunityToolkit.Mvvm` and `Microsoft.Extensions.DependencyInjection` package references; scaffolded `MainViewModel`; created `IWebViewService` and `WebViewService`; introduced `IPlatformAutomationService` and `PlatformAutomationService`; wired DI in `App.xaml.cs`; resolved `Point` ambiguity and restored `MainWindow` loaded handler. (Initial MVVM/DI scaffolding and non-breaking integration.)
+- [2026-01-24] Extracted player JS into `Resources/js/` and updated `WebViewService` to load these scripts; added `StreamMonitorService` and `PlatformPowerService` to detect frozen streams and trigger recovery on resume; registered WebView2 controls with the monitor from `MainWindow`. (Stream recovery scaffolding and per-view health checks.)
 
 
 Acceptance criteria for stream recovery feature
