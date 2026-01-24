@@ -9,4 +9,6 @@ public interface IWebViewService
     Task ExecuteScriptAsync(WebView2 view, string script);
     System.Drawing.Point GetWebView2ScreenPoint(WebView2 view, int offsetX, int offsetY);
     Task ReloadAsync(WebView2 view);
+    Task InitializeC14Async(WebView2 view);
+    Task InitializeI24Async(WebView2 view);
 }

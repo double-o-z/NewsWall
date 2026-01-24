@@ -30,96 +30,16 @@ public partial class MainWindow : Window
 
     private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
     {
-        // preserve original behavior while relying on injected services in future iterations
-        await c14View.EnsureCoreWebView2Async();
-
-        c14View.CoreWebView2.NavigationCompleted += async (_, __) =>
+        // Delegate initialization and JS injection to the IWebViewService via MainViewModel
+        if (DataContext is NewsWall.ViewModels.MainViewModel vm)
         {
-            string js = @"
-                console.log('C14 fullscreen script injected');
-
-                let attempts = 0;
-
-                const tryFull = () => {
-                    attempts++;
-                    console.log('Attempt', attempts);
-
-                    const iframe = document.getElementById('univ-live-iframe');
-                    if (!iframe) {
-                        console.log('iframe not found');
-                        return;
-                    }
-
-                    const doc = iframe.contentWindow?.document;
-                    if (!doc) {
-                        console.log('iframe document not ready');
-                        return;
-                    }
-
-                    const btn = doc.querySelector('.rgpl-btn-fullscreen');
-                    if (!btn) {
-                        console.log('fullscreen button not found');
-                        return;
-                    }
-
-                    console.log('Clicking fullscreen');
-                    btn.click();
-                    clearInterval(window._c14FullInt);
-                };
-
-                window._c14FullInt = setInterval(tryFull, 500);
-            ";
-
-            await c14View.ExecuteScriptAsync(js);
-        };
-
-        await i24View.EnsureCoreWebView2Async();
-
-        i24View.CoreWebView2.NavigationCompleted += async (_, __) =>
+            await vm.InitializeWebViewsAsync(c14View, i24View);
+        }
+        else
         {
-                // Wait for Flutter to initialize 
-            await Task.Delay(5000);
-
-            // Your calibrated offsets inside the WebView2 control
-            int offsetX = 410;
-            int offsetY = 175;
-
-            // Convert to screen coordinates
-            var screenPoint = GetWebView2ScreenPoint(i24View, offsetX, offsetY);
-
-            // Send real OS-level click
-            // If PlatformAutomationService is registered, use it. Otherwise fall back to legacy method.
-            var platform = NewsWall.App.ServiceProvider?.GetService(typeof(NewsWall.Services.IPlatformAutomationService)) as NewsWall.Services.IPlatformAutomationService;
-            if (platform != null)
-            {
-                platform.ClickScreen(screenPoint.X, screenPoint.Y);
-            }
-            else
-            {
-                // fallback
-                System.Windows.Forms.Cursor.Position = new System.Drawing.Point(screenPoint.X, screenPoint.Y);
-                // invoke low-level mouse events if available
-                try
-                {
-                    // using dynamic P/Invoke directly would require re-declaring mouse_event; keep fallback minimal
-                }
-                catch { }
-            }
-
-            // Now wait for the video and mute it
-            string muteJs = @"
-                const tryMute = () => {
-                    const vid = document.querySelector('video');
-                    if (vid) {
-                        vid.muted = true;
-                        vid.volume = 0;
-                        clearInterval(window._muteInt);
-                    }
-                };
-                window._muteInt = setInterval(tryMute, 500);
-            ";
-
-            await i24View.ExecuteScriptAsync(muteJs);
-        };
+            // Fallback to previous behavior if ViewModel is not available
+            await c14View.EnsureCoreWebView2Async();
+            await i24View.EnsureCoreWebView2Async();
+        }
     }
 }
