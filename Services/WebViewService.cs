@@ -1,7 +1,6 @@
 using Microsoft.Web.WebView2.Wpf;
 using DrawingPoint = System.Drawing.Point;
 using System.Threading.Tasks;
-using System.Windows;
 
 namespace NewsWall.Services;
 
@@ -17,10 +16,10 @@ public class WebViewService : IWebViewService
         await view.ExecuteScriptAsync(script);
     }
 
-    public Point GetWebView2ScreenPoint(WebView2 view, int offsetX, int offsetY)
+    public DrawingPoint GetWebView2ScreenPoint(WebView2 view, int offsetX, int offsetY)
     {
         var relative = view.PointToScreen(new System.Windows.Point(offsetX, offsetY));
-        return new Point((int)relative.X, (int)relative.Y);
+        return new DrawingPoint((int)relative.X, (int)relative.Y);
     }
 
     public Task ReloadAsync(WebView2 view)

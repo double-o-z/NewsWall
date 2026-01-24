@@ -1,5 +1,4 @@
 using Microsoft.Web.WebView2.Wpf;
-using System.Drawing;
 using System.Threading.Tasks;
 
 namespace NewsWall.Services;
