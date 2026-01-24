@@ -75,12 +75,24 @@ Tasks to perform (up to 5)
 1. Add `CommunityToolkit.Mvvm` and `Microsoft.Extensions.DependencyInjection` NuGet packages to the WPF project and verify the solution builds.
 2. Scaffold `ViewModelBase` (inheriting from `ObservableObject`) and create an initial `MainViewModel` with a placeholder `InitializeAsync` command.
 3. Create `IWebViewService` abstraction and a simple implementation that wraps `WebView2` calls used today (EnsureCoreWebView2Async, ExecuteScriptAsync, point conversion). Register it with DI as a scoped/singleton service.
-4. Introduce `IPlatformAutomationService` and move `mouse_event` and `ClickScreen` logic into a service implementation that the app uses via DI.
-5. Wire DI in `App.xaml.cs` (or `Program.cs`), register ViewModels and services, and update `MainWindow` to resolve `MainViewModel` from DI and set it as DataContext. Ensure the app still launches and WebView2 initializes.
+4. Implement stream recovery and power-resume handling:
+   - Create `IStreamMonitorService` (or `IWebViewHealthService`) responsible for periodically checking each WebView instance for a frozen or unresponsive stream (e.g. no frame progress, missing expected DOM elements, or no audio/video activity). Provide a configurable polling interval and retry policy.
+   - Implement restart behavior inside the monitor (soft-reload via `CoreWebView2.Reload()` or re-navigation; fallback to re-initialization of the WebView if reload fails). Expose an API so callers (or the system power service) can request an immediate restart.
+   - Add unit tests for the monitor by mocking `IWebViewService` to simulate frozen and healthy states and asserting restart attempts.
+5. Detect system sleep/wake and trigger recovery:
+   - Introduce `IPlatformPowerService` to receive OS power events (resume from sleep). On resume, call the `IStreamMonitorService` to perform an immediate health check and restart streams as needed.
+   - Ensure the service is registered in DI and that the app subscribes/unsubscribes to OS events safely (avoid leaks). Add a small integration test plan to manually verify behavior on suspend/resume.
 
 Tasks successfully performed
 - None yet.
 
+
+Acceptance criteria for stream recovery feature
+- The app periodically checks WebView stream health without blocking the UI thread.
+- When a frozen or unresponsive stream is detected, the app attempts a graceful reload and, if necessary, reinitializes the WebView.
+- On system resume from sleep, the app triggers an immediate health check and restarts affected streams.
+- The monitor and power services are abstracted behind interfaces and registered with DI so they can be unit tested.
+- Unit tests cover the monitor restart logic (using mocked `IWebViewService`) and basic retry scenarios.
 
 Notes
 - Keep changes small and verifiable; each agent run should produce a passing build if possible.
