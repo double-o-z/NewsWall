@@ -8,7 +8,7 @@ namespace NewsWall.Services;
 
 public class StreamMonitorService : IStreamMonitorService, IDisposable
 {
-    private readonly ConcurrentDictionary<WebView2, byte> _views = new();
+    private readonly ConcurrentDictionary<WebView2, string?> _views = new();
     private readonly Timer _timer;
     private readonly TimeSpan _interval = TimeSpan.FromSeconds(30);
     private readonly int _maxRetries = 3;
@@ -18,9 +18,9 @@ public class StreamMonitorService : IStreamMonitorService, IDisposable
         _timer = new Timer(async _ => await MonitorTickAsync(), null, _interval, _interval);
     }
 
-    public void RegisterView(WebView2 view)
+    public void RegisterView(WebView2 view, string? healthCheckScript = null)
     {
-        _views.TryAdd(view, 0);
+        _views[view] = healthCheckScript;
     }
 
     public void UnregisterView(WebView2 view)
@@ -35,17 +35,19 @@ public class StreamMonitorService : IStreamMonitorService, IDisposable
 
     private async Task MonitorTickAsync()
     {
-        foreach (var kv in _views.Keys)
+        foreach (var kv in _views)
         {
+            var view = kv.Key;
+            var script = kv.Value;
             try
             {
-                await CheckAndRecoverAsync(kv);
+                await CheckAndRecoverAsync(view, script);
             }
             catch { }
         }
     }
 
-    private async Task CheckAndRecoverAsync(WebView2 view)
+    private async Task CheckAndRecoverAsync(WebView2 view, string? healthCheckScript)
     {
         // Interact with the WebView2 control on the UI thread via its Dispatcher.
         try
@@ -61,13 +63,14 @@ public class StreamMonitorService : IStreamMonitorService, IDisposable
                     return;
                 }
 
-                // Try to check DOM health for a video element presence by executing a small script
+                // If a healthCheckScript is provided use it; otherwise default to checking for a video element
+                var checkScript = healthCheckScript ?? "(function(){const v=document.querySelector('video'); return v?1:0;})();";
                 try
                 {
-                    var res = await view.ExecuteScriptAsync("(function(){const v=document.querySelector('video'); return v?1:0;})();");
+                    var res = await view.ExecuteScriptAsync(checkScript);
                     if (res == "0")
                     {
-                        // video not found - attempt reload
+                        // not healthy - attempt reload
                         await ReloadViewAsync(view);
                     }
                 }

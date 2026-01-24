@@ -40,8 +40,8 @@ public partial class MainWindow : Window
             var monitor = NewsWall.App.ServiceProvider?.GetService(typeof(NewsWall.Services.IStreamMonitorService)) as NewsWall.Services.IStreamMonitorService;
             if (monitor != null)
             {
-                try { monitor.RegisterView(c14View); } catch { }
-                try { monitor.RegisterView(i24View); } catch { }
+                try { monitor.RegisterView(c14View, "(function(){const iframe=document.getElementById('univ-live-iframe'); return iframe?1:0;})();"); } catch { }
+                try { monitor.RegisterView(i24View, "(function(){const v=document.querySelector('video'); return v?1:0;})();"); } catch { }
                 // perform an immediate check on startup
                 _ = monitor.CheckNowAsync();
             }
