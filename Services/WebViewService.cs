@@ -34,42 +34,18 @@ public class WebViewService : IWebViewService
 
         view.CoreWebView2.NavigationCompleted += async (_, __) =>
         {
-            string js = @"
-                console.log('C14 fullscreen script injected');
-
-                let attempts = 0;
-
-                const tryFull = () => {
-                    attempts++;
-                    console.log('Attempt', attempts);
-
-                    const iframe = document.getElementById('univ-live-iframe');
-                    if (!iframe) {
-                        console.log('iframe not found');
-                        return;
-                    }
-
-                    const doc = iframe.contentWindow?.document;
-                    if (!doc) {
-                        console.log('iframe document not ready');
-                        return;
-                    }
-
-                    const btn = doc.querySelector('.rgpl-btn-fullscreen');
-                    if (!btn) {
-                        console.log('fullscreen button not found');
-                        return;
-                    }
-
-                    console.log('Clicking fullscreen');
-                    btn.click();
-                    clearInterval(window._c14FullInt);
-                };
-
-                window._c14FullInt = setInterval(tryFull, 500);
-            ";
-
-            await ExecuteScriptAsync(view, js);
+            // Load the external JS resource (embedded as content) and execute it
+            try
+            {
+                var exePath = System.AppDomain.CurrentDomain.BaseDirectory;
+                var jsPath = System.IO.Path.Combine(exePath, "Resources", "js", "c14-fullscreen.js");
+                if (System.IO.File.Exists(jsPath))
+                {
+                    var js = await System.IO.File.ReadAllTextAsync(jsPath);
+                    await ExecuteScriptAsync(view, js);
+                }
+            }
+            catch { /* ignore errors silently for now */ }
         };
     }
 
@@ -100,20 +76,17 @@ public class WebViewService : IWebViewService
                 System.Windows.Forms.Cursor.Position = new System.Drawing.Point(screenPoint.X, screenPoint.Y);
             }
 
-            // Now wait for the video and mute it
-            string muteJs = @"
-                const tryMute = () => {
-                    const vid = document.querySelector('video');
-                    if (vid) {
-                        vid.muted = true;
-                        vid.volume = 0;
-                        clearInterval(window._muteInt);
-                    }
-                };
-                window._muteInt = setInterval(tryMute, 500);
-            ";
-
-            await ExecuteScriptAsync(view, muteJs);
+            try
+            {
+                var exePath = System.AppDomain.CurrentDomain.BaseDirectory;
+                var jsPath = System.IO.Path.Combine(exePath, "Resources", "js", "i24-mute.js");
+                if (System.IO.File.Exists(jsPath))
+                {
+                    var js = await System.IO.File.ReadAllTextAsync(jsPath);
+                    await ExecuteScriptAsync(view, js);
+                }
+            }
+            catch { }
         };
     }
 }

@@ -6,8 +6,6 @@ using Microsoft.Web.WebView2.Wpf;
 
 namespace NewsWall.ViewModels;
 
-namespace NewsWall.ViewModels;
-
 public partial class MainViewModel : ObservableObject
 {
     private readonly IWebViewService _webViewService;
