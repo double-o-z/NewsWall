@@ -99,5 +99,3 @@ Notes
 - When running work that modifies XAML, prefer incremental commits and run the app to validate UI behavior locally.
 
 ---
-
-If this matches your expectations, I will save and push this change now.
