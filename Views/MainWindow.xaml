@@ -1,0 +1,22 @@
+﻿<Window x:Class="NewsWall.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+        Title="NewsWall" Height="600" Width="1000"
+        Loaded="MainWindow_Loaded">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <!-- C14 -->
+        <wv2:WebView2 x:Name="c14View" Grid.Column="0"
+                      Source="https://www.c14.co.il/live" />
+
+        <!-- i24 Hebrew -->
+        <wv2:WebView2 x:Name="i24View" Grid.Column="1"
+                      Source="https://video.i24news.tv/live/brightcove/he" />
+    </Grid>
+</Window>
