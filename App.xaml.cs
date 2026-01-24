@@ -21,6 +21,8 @@ public partial class App : Application
         // Register services and viewmodels
         services.AddSingleton<IWebViewService, WebViewService>();
         services.AddSingleton<IPlatformAutomationService, PlatformAutomationService>();
+        services.AddSingleton<IStreamMonitorService, StreamMonitorService>();
+        services.AddSingleton<IPlatformPowerService, PlatformPowerService>();
         services.AddSingleton<MainViewModel>();
 
         _serviceProvider = services.BuildServiceProvider();
@@ -28,6 +30,9 @@ public partial class App : Application
 
         var main = new Views.MainWindow();
         main.DataContext = _serviceProvider.GetRequiredService<MainViewModel>();
+        // Start power service so it can listen for resume events
+        var power = _serviceProvider.GetRequiredService<IPlatformPowerService>();
+        power.Start();
         main.Show();
 
         base.OnStartup(e);
