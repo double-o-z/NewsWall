@@ -72,10 +72,9 @@ Iteration workflow for agents
 - Agents must make a Git commit with their changes and push to the repository branch used for development.
 
 Tasks to perform (up to 5)
-1. Add `CommunityToolkit.Mvvm` and `Microsoft.Extensions.DependencyInjection` NuGet packages to the WPF project and verify the solution builds.
-2. Scaffold `ViewModelBase` (inheriting from `ObservableObject`) and create an initial `MainViewModel` with a placeholder `InitializeAsync` command.
-3. Create `IWebViewService` abstraction and a simple implementation that wraps `WebView2` calls used today (EnsureCoreWebView2Async, ExecuteScriptAsync, point conversion). Register it with DI as a scoped/singleton service.
-4. Implement stream recovery and power-resume handling:
+1. Scaffold `ViewModelBase` (inheriting from `ObservableObject`) and create an initial `MainViewModel` with a placeholder `InitializeAsync` command.
+2. Create `IWebViewService` abstraction and a simple implementation that wraps `WebView2` calls used today (EnsureCoreWebView2Async, ExecuteScriptAsync, point conversion). Register it with DI as a scoped/singleton service.
+3. Implement stream recovery and power-resume handling:
    - Create `IStreamMonitorService` (or `IWebViewHealthService`) responsible for periodically checking each WebView instance for a frozen or unresponsive stream (e.g. no frame progress, missing expected DOM elements, or no audio/video activity). Provide a configurable polling interval and retry policy.
    - Implement restart behavior inside the monitor (soft-reload via `CoreWebView2.Reload()` or re-navigation; fallback to re-initialization of the WebView if reload fails). Expose an API so callers (or the system power service) can request an immediate restart.
    - Add unit tests for the monitor by mocking `IWebViewService` to simulate frozen and healthy states and asserting restart attempts.
@@ -84,7 +83,7 @@ Tasks to perform (up to 5)
    - Ensure the service is registered in DI and that the app subscribes/unsubscribes to OS events safely (avoid leaks). Add a small integration test plan to manually verify behavior on suspend/resume.
 
 Tasks successfully performed
-- None yet.
+- [2026-01-24] Added `CommunityToolkit.Mvvm` and `Microsoft.Extensions.DependencyInjection` package references; scaffolded `MainViewModel`; created `IWebViewService` and `WebViewService`; introduced `IPlatformAutomationService` and `PlatformAutomationService`; wired DI in `App.xaml.cs`; resolved `Point` ambiguity and restored `MainWindow` loaded handler. (Initial MVVM/DI scaffolding and non-breaking integration.)
 
 
 Acceptance criteria for stream recovery feature

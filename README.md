@@ -28,6 +28,16 @@ NewsWall is a lightweight WPF application that displays curated live news stream
 - Better error handling and recovery for network or renderer failures
 - Themable UI and lightweight overlay controls (clock, headlines)
 - Accessibility improvements and screen-reader support
+ 
+## Project structure changes and MVVM migration notes
+
+- This repository has started a migration toward the Microsoft MVVM Toolkit (`CommunityToolkit.Mvvm`) and dependency injection. Initial scaffolding was added:
+  - `ViewModels/MainViewModel.cs` — a placeholder viewmodel.
+  - `Services/IWebViewService.cs` and `Services/WebViewService.cs` — abstraction for WebView2 operations.
+  - `Services/IPlatformAutomationService.cs` and `Services/PlatformAutomationService.cs` — abstraction for OS-level automation.
+  - DI wiring in `App.xaml.cs` (services and `MainViewModel` are registered and `MainWindow.DataContext` is resolved at startup).
+
+Please note: the app's visible behavior is preserved; existing automation and initialization logic in `MainWindow.xaml.cs` remains active until it can be safely migrated into services and viewmodels.
 
 ## Contributing
 
