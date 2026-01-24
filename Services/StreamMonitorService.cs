@@ -47,28 +47,43 @@ public class StreamMonitorService : IStreamMonitorService, IDisposable
 
     private async Task CheckAndRecoverAsync(WebView2 view)
     {
-        // Basic heuristic: check if navigation state is ready and CoreWebView2 exists.
-        var core = view.CoreWebView2;
-        if (core == null)
-        {
-            // attempt re-initialize by reloading the control
-            await ReloadViewAsync(view);
-            return;
-        }
-
-        // Try to check DOM health for a video element presence by executing a small script
+        // Interact with the WebView2 control on the UI thread via its Dispatcher.
         try
         {
-            var res = await view.ExecuteScriptAsync("(function(){const v=document.querySelector('video'); return v?1:0;})();");
-            if (res == "0")
+            var op = view.Dispatcher.InvokeAsync(async () =>
             {
-                // video not found - attempt reload
-                await ReloadViewAsync(view);
-            }
+                // Basic heuristic: check if navigation state is ready and CoreWebView2 exists.
+                var core = view.CoreWebView2;
+                if (core == null)
+                {
+                    // attempt re-initialize by reloading the control
+                    await ReloadViewAsync(view);
+                    return;
+                }
+
+                // Try to check DOM health for a video element presence by executing a small script
+                try
+                {
+                    var res = await view.ExecuteScriptAsync("(function(){const v=document.querySelector('video'); return v?1:0;})();");
+                    if (res == "0")
+                    {
+                        // video not found - attempt reload
+                        await ReloadViewAsync(view);
+                    }
+                }
+                catch
+                {
+                    await ReloadViewAsync(view);
+                }
+            });
+
+            // Wait for the dispatched async operation to complete
+            await op.Task;
         }
         catch
         {
-            await ReloadViewAsync(view);
+            // If dispatcher invocation failed, try a fallback reload on a ThreadPool thread
+            try { await ReloadViewAsync(view); } catch { }
         }
     }
 
