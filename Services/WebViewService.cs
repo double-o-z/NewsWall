@@ -32,23 +32,39 @@ public class WebViewService : IWebViewService
 
     public async Task InitializeC14Async(WebView2 view)
     {
+        // Avoid registering handlers multiple times for the same view
+        if (!_initialized.TryAdd(view, 0))
+        {
+            return;
+        }
+
         await EnsureCoreWebView2Async(view);
 
+        // Load the external JS resource once
+        string? js = null;
+        try
+        {
+            var exePath = System.AppDomain.CurrentDomain.BaseDirectory;
+            var jsPath = System.IO.Path.Combine(exePath, "Resources", "js", "c14-fullscreen.js");
+            if (System.IO.File.Exists(jsPath))
+            {
+                js = await System.IO.File.ReadAllTextAsync(jsPath);
+            }
+        }
+        catch { js = null; }
+
+        // Attach handler so the script is injected on navigation as well
         view.CoreWebView2.NavigationCompleted += async (_, __) =>
         {
-            // Load the external JS resource (embedded as content) and execute it
-            try
-            {
-                var exePath = System.AppDomain.CurrentDomain.BaseDirectory;
-                var jsPath = System.IO.Path.Combine(exePath, "Resources", "js", "c14-fullscreen.js");
-                if (System.IO.File.Exists(jsPath))
-                {
-                    var js = await System.IO.File.ReadAllTextAsync(jsPath);
-                    await ExecuteScriptAsync(view, js);
-                }
-            }
-            catch { /* ignore errors silently for now */ }
+            if (js is null) return;
+            try { await ExecuteScriptAsync(view, js); } catch { }
         };
+
+        // Also attempt to inject immediately (setInterval inside the script will retry until ready)
+        if (js is not null)
+        {
+            try { await ExecuteScriptAsync(view, js); } catch { }
+        }
     }
 
     public async Task InitializeI24Async(WebView2 view)
