@@ -13,9 +13,19 @@ public partial class MainWindow : Window
 
         WindowStyle = WindowStyle.None;
         WindowState = WindowState.Maximized;
-
         Loaded += (_, __) =>
         {
+        };
+
+        // Ensure we unregister views when window closes
+        Closed += (_, __) =>
+        {
+            var monitor = NewsWall.App.ServiceProvider?.GetService(typeof(NewsWall.Services.IStreamMonitorService)) as NewsWall.Services.IStreamMonitorService;
+            if (monitor != null)
+            {
+                try { monitor.UnregisterView(c14View); } catch { }
+                try { monitor.UnregisterView(i24View); } catch { }
+            }
         };
     }
 
@@ -25,6 +35,16 @@ public partial class MainWindow : Window
         if (DataContext is ViewModels.MainViewModel vm)
         {
             await vm.InitializeWebViewsAsync(c14View, i24View);
+
+            // After initializing webviews, register them with the stream monitor so they can be health-checked
+            var monitor = NewsWall.App.ServiceProvider?.GetService(typeof(NewsWall.Services.IStreamMonitorService)) as NewsWall.Services.IStreamMonitorService;
+            if (monitor != null)
+            {
+                try { monitor.RegisterView(c14View); } catch { }
+                try { monitor.RegisterView(i24View); } catch { }
+                // perform an immediate check on startup
+                _ = monitor.CheckNowAsync();
+            }
         }
         else
         {
