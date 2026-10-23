@@ -13,6 +13,7 @@
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3650.58" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.71" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\js\**\*.js">

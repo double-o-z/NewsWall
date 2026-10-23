@@ -114,12 +114,21 @@
             </Grid>
         </Grid>
 
-        <!-- Bottom bar: Rotter news feed (3-5 lines) -->
-        <Border Grid.Row="2" Background="#252526" BorderBrush="#3A3A3A" BorderThickness="0,1,0,0" Padding="8,4">
+        <!-- Bottom bar: Rotter news feed (two columns, clickable links) -->
+        <Border Grid.Row="2" Background="#252526" BorderBrush="#3A3A3A" BorderThickness="0,1,0,0" Padding="10,6">
             <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                <TextBlock x:Name="txtRotterNews" Foreground="#CCCCCC"
-                           FontSize="13" TextWrapping="Wrap"
-                           FlowDirection="RightToLeft" MaxHeight="70" />
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Left column headlines -->
+                    <StackPanel Grid.Column="0" x:Name="spRotterLeft" Margin="0,0,4,0" />
+
+                    <!-- Right column headlines -->
+                    <StackPanel Grid.Column="1" x:Name="spRotterRight" Margin="4,0,0,0" />
+                </Grid>
             </ScrollViewer>
         </Border>
     </Grid>

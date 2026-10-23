@@ -1,6 +1,11 @@
 ﻿﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Threading;
 using NewsWall.Services;
 
@@ -170,17 +175,103 @@ public partial class MainWindow : Window
             var headlines = await _rotterNewsService.GetLatestHeadlinesAsync(count: 6);
             Dispatcher.Invoke(() =>
             {
-                txtRotterNews.Text = headlines.Count > 0
-                    ? string.Join("   |   ", headlines)
-                    : "רוטר: לא הצליח לטעון כותרות";
+                spRotterLeft.Children.Clear();
+                spRotterRight.Children.Clear();
+
+                if (headlines.Count > 0)
+                {
+                    // Split headlines between left and right columns.
+                    // Hebrew reads right-to-left, so newest headlines go on the right.
+                    var mid = (headlines.Count + 1) / 2;
+                    var leftHeadlines = headlines.Skip(mid).ToList();   // older on the left
+                    var rightHeadlines = headlines.Take(mid).ToList();  // newest on the right
+
+                    AddHeadlinesToPanel(spRotterLeft, leftHeadlines);
+                    AddHeadlinesToPanel(spRotterRight, rightHeadlines);
+                }
+                else
+                {
+                    var noDataLeft = new TextBlock
+                    {
+                        Text = "רוטר: לא הצליח לטעון כותרות",
+                        Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0xCC, 0xCC, 0xCC)),
+                        FontSize = 12,
+                        Margin = new Thickness(0, 4, 0, 4)
+                    };
+                    var noDataRight = new TextBlock
+                    {
+                        Text = "",
+                        Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0xCC, 0xCC, 0xCC)),
+                        FontSize = 12,
+                        Margin = new Thickness(0, 4, 0, 4)
+                    };
+                    spRotterLeft.Children.Add(noDataLeft);
+                    spRotterRight.Children.Add(noDataRight);
+                }
             });
         }
         catch
         {
             Dispatcher.Invoke(() =>
             {
-                txtRotterNews.Text = "רוטר: שגיאה בטעינת כותרות";
+                spRotterLeft.Children.Clear();
+                spRotterRight.Children.Clear();
+                var errLeft = new TextBlock
+                {
+                    Text = "רוטר: שגיאה בטעינת כותרות",
+                    Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0xCC, 0xCC, 0xCC)),
+                    FontSize = 12,
+                    Margin = new Thickness(0, 4, 0, 4)
+                };
+                var errRight = new TextBlock
+                {
+                    Text = "",
+                    Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0xCC, 0xCC, 0xCC)),
+                    FontSize = 12,
+                    Margin = new Thickness(0, 4, 0, 4)
+                };
+                spRotterLeft.Children.Add(errLeft);
+                spRotterRight.Children.Add(errRight);
             });
+        }
+    }
+
+    private void AddHeadlinesToPanel(StackPanel panel, List<RotterHeadline> headlines)
+    {
+        foreach (var hl in headlines)
+        {
+            // Create a clickable Hyperlink inside a TextBlock
+            var hyperlink = new Hyperlink
+            {
+                NavigateUri = new Uri(hl.Url),
+                Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x4A, 0x90, 0xE2)),
+                TextDecorations = System.Windows.TextDecorations.Underline
+            };
+            hyperlink.Inlines.Add(hl.Title);
+            hyperlink.RequestNavigate += (s, e) =>
+            {
+                try
+                {
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = e.Uri.AbsoluteUri,
+                        UseShellExecute = true
+                    });
+                }
+                catch { }
+                e.Handled = true;
+            };
+
+            var textBlock = new TextBlock
+            {
+                TextWrapping = TextWrapping.Wrap,
+                FlowDirection = System.Windows.FlowDirection.RightToLeft,
+                FontSize = 13,
+                Margin = new Thickness(0, 3, 0, 3)
+            };
+            textBlock.Inlines.Add(hyperlink);
+
+            panel.Children.Add(textBlock);
         }
     }
 }
