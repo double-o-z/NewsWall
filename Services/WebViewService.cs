@@ -77,30 +77,32 @@ public class WebViewService : IWebViewService
 
         await EnsureCoreWebView2Async(view);
 
-        // Wait for Flutter to initialize
+        // --- Step 1: Select the Hebrew / i24 language ---
+        // Wait for the Flutter language-selection page to initialize.
         await Task.Delay(5000);
 
-        // Your calibrated offsets inside the WebView2 control
-        int offsetX = 410;
-        int offsetY = 175;
+        // Click the Hebrew / i24 language button (bottom-right of the language selector).
+        // These offsets are relative to the WebView2 control's top-left corner.
+        // Calibrate them to match the red-rectangle button in Image 1.
+        int langOffsetX = 430;   // TODO: adjust to the Hebrew button's X position
+        int langOffsetY = 620;   // TODO: adjust to the Hebrew button's Y position
 
-        // Convert to screen coordinates
-        var screenPoint = GetWebView2ScreenPoint(view, offsetX, offsetY);
+        var langPoint = GetWebView2ScreenPoint(view, langOffsetX, langOffsetY);
+        ClickScreenPoint(langPoint);
 
-        // Use platform automation if available
-        var platform = App.ServiceProvider?.GetService(typeof(IPlatformAutomationService)) as IPlatformAutomationService;
-        if (platform != null)
-        {
-            platform.ClickScreen(screenPoint.X, screenPoint.Y);
-        }
-        else
-        {
-            System.Windows.Forms.Cursor.Position = new System.Drawing.Point(screenPoint.X, screenPoint.Y);
-        }
+        // --- Step 2: Wait for the stream to load ---
+        await Task.Delay(8000); // 5-10 seconds for the video player to appear
 
-        // Inject the mute script once. The interval inside the script retries until
-        // the video is ready, mutes once, then stops. It is not re-injected on
-        // subsequent navigations so a manual unmute sticks.
+        // --- Step 3: Click the Play ("הפעלה") button ---
+        // Click the red play button that appears after the stream loads.
+        // Calibrate these to match the red-rectangle button in Image 2.
+        int playOffsetX = 620;   // TODO: adjust to the Play button's X position
+        int playOffsetY = 440;   // TODO: adjust to the Play button's Y position
+
+        var playPoint = GetWebView2ScreenPoint(view, playOffsetX, playOffsetY);
+        ClickScreenPoint(playPoint);
+
+        // --- Step 4: Inject the mute script once ---
         try
         {
             var exePath = System.AppDomain.CurrentDomain.BaseDirectory;
@@ -112,5 +114,18 @@ public class WebViewService : IWebViewService
             }
         }
         catch { }
+    }
+
+    private void ClickScreenPoint(System.Drawing.Point point)
+    {
+        var platform = App.ServiceProvider?.GetService(typeof(IPlatformAutomationService)) as IPlatformAutomationService;
+        if (platform != null)
+        {
+            platform.ClickScreen(point.X, point.Y);
+        }
+        else
+        {
+            System.Windows.Forms.Cursor.Position = point;
+        }
     }
 }
