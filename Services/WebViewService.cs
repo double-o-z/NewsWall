@@ -69,42 +69,48 @@ public class WebViewService : IWebViewService
 
     public async Task InitializeI24Async(WebView2 view)
     {
+        // Avoid re-injecting the mute script on every navigation; inject once only.
+        if (!_initialized.TryAdd(view, 0))
+        {
+            return;
+        }
+
         await EnsureCoreWebView2Async(view);
 
-        view.CoreWebView2.NavigationCompleted += async (_, __) =>
+        // Wait for Flutter to initialize
+        await Task.Delay(5000);
+
+        // Your calibrated offsets inside the WebView2 control
+        int offsetX = 410;
+        int offsetY = 175;
+
+        // Convert to screen coordinates
+        var screenPoint = GetWebView2ScreenPoint(view, offsetX, offsetY);
+
+        // Use platform automation if available
+        var platform = App.ServiceProvider?.GetService(typeof(IPlatformAutomationService)) as IPlatformAutomationService;
+        if (platform != null)
         {
-            // Wait for Flutter to initialize
-            await Task.Delay(5000);
+            platform.ClickScreen(screenPoint.X, screenPoint.Y);
+        }
+        else
+        {
+            System.Windows.Forms.Cursor.Position = new System.Drawing.Point(screenPoint.X, screenPoint.Y);
+        }
 
-            // Your calibrated offsets inside the WebView2 control
-            int offsetX = 410;
-            int offsetY = 175;
-
-            // Convert to screen coordinates
-            var screenPoint = GetWebView2ScreenPoint(view, offsetX, offsetY);
-
-            // Use platform automation if available
-            var platform = App.ServiceProvider?.GetService(typeof(IPlatformAutomationService)) as IPlatformAutomationService;
-            if (platform != null)
+        // Inject the mute script once. The interval inside the script retries until
+        // the video is ready, mutes once, then stops. It is not re-injected on
+        // subsequent navigations so a manual unmute sticks.
+        try
+        {
+            var exePath = System.AppDomain.CurrentDomain.BaseDirectory;
+            var jsPath = System.IO.Path.Combine(exePath, "Resources", "js", "i24-mute.js");
+            if (System.IO.File.Exists(jsPath))
             {
-                platform.ClickScreen(screenPoint.X, screenPoint.Y);
+                var js = await System.IO.File.ReadAllTextAsync(jsPath);
+                await ExecuteScriptAsync(view, js);
             }
-            else
-            {
-                System.Windows.Forms.Cursor.Position = new System.Drawing.Point(screenPoint.X, screenPoint.Y);
-            }
-
-            try
-            {
-                var exePath = System.AppDomain.CurrentDomain.BaseDirectory;
-                var jsPath = System.IO.Path.Combine(exePath, "Resources", "js", "i24-mute.js");
-                if (System.IO.File.Exists(jsPath))
-                {
-                    var js = await System.IO.File.ReadAllTextAsync(jsPath);
-                    await ExecuteScriptAsync(view, js);
-                }
-            }
-            catch { }
-        };
+        }
+        catch { }
     }
 }

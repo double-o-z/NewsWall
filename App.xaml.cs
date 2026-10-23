@@ -23,6 +23,8 @@ public partial class App : Application
         services.AddSingleton<IPlatformAutomationService, PlatformAutomationService>();
         services.AddSingleton<IStreamMonitorService, StreamMonitorService>();
         services.AddSingleton<IPlatformPowerService, PlatformPowerService>();
+        services.AddSingleton<IMarketDataService, MarketDataService>();
+        services.AddSingleton<IRotterNewsService, RotterNewsService>();
         services.AddSingleton<MainViewModel>();
 
         _serviceProvider = services.BuildServiceProvider();
