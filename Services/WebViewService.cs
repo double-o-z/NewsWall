@@ -91,7 +91,7 @@ public class WebViewService : IWebViewService
         ClickScreenPoint(langPoint);
 
         // --- Step 2: Wait for the stream to load ---
-        await Task.Delay(8000); // 5-10 seconds for the video player to appear
+        await Task.Delay(4000); // 5-10 seconds for the video player to appear
 
         // --- Step 3: Click the Play ("הפעלה") button ---
         // Click the red play button that appears after the stream loads.
