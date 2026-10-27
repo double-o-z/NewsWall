@@ -117,10 +117,70 @@ public partial class MainWindow : Window
     {
         try
         {
-            var intel = await _marketDataService.GetIntelPriceAsync();
+            var intel = await _marketDataService.GetIntelDataAsync();
             Dispatcher.Invoke(() =>
             {
-                txtIntelPrice.Text = intel.HasValue ? $"INTC: ${intel.Value:F2}" : "INTC: --";
+                // Hide all Intel price components first
+                txtIntelPriceRegular.Visibility = Visibility.Collapsed;
+                txtIntelPricePre.Visibility = Visibility.Collapsed;
+                txtIntelPriceAfter.Visibility = Visibility.Collapsed;
+
+                // Show the price matching the current session, with fallback to any available price
+                bool shown = false;
+
+                // Session-specific price first
+                if (intel.Session == MarketSession.PreMarket && intel.PreMarketPrice.HasValue)
+                {
+                    txtIntelPricePre.Text = $"INTC (Pre): ${intel.PreMarketPrice.Value:F2}";
+                    txtIntelPricePre.Visibility = Visibility.Visible;
+                    shown = true;
+                }
+                else if (intel.Session == MarketSession.AfterMarket && intel.PostMarketPrice.HasValue)
+                {
+                    txtIntelPriceAfter.Text = $"INTC (After): ${intel.PostMarketPrice.Value:F2}";
+                    txtIntelPriceAfter.Visibility = Visibility.Visible;
+                    shown = true;
+                }
+                else if (intel.Session == MarketSession.Regular && intel.RegularPrice.HasValue)
+                {
+                    txtIntelPriceRegular.Text = $"INTC: ${intel.RegularPrice.Value:F2}";
+                    txtIntelPriceRegular.Visibility = Visibility.Visible;
+                    shown = true;
+                }
+
+                // Fallback 1: Session-specific price is null but we have another price — show it with session label
+                if (!shown && intel.Session == MarketSession.PreMarket && intel.RegularPrice.HasValue)
+                {
+                    txtIntelPricePre.Text = $"INTC (Pre): ${intel.RegularPrice.Value:F2}";
+                    txtIntelPricePre.Visibility = Visibility.Visible;
+                    shown = true;
+                }
+                else if (!shown && intel.Session == MarketSession.AfterMarket && intel.RegularPrice.HasValue)
+                {
+                    txtIntelPriceAfter.Text = $"INTC (After): ${intel.RegularPrice.Value:F2}";
+                    txtIntelPriceAfter.Visibility = Visibility.Visible;
+                    shown = true;
+                }
+
+                // Fallback 2: Show whatever price we have
+                if (!shown)
+                {
+                    if (intel.PreMarketPrice.HasValue)
+                    {
+                        txtIntelPricePre.Text = $"INTC (Pre): ${intel.PreMarketPrice.Value:F2}";
+                        txtIntelPricePre.Visibility = Visibility.Visible;
+                    }
+                    else if (intel.PostMarketPrice.HasValue)
+                    {
+                        txtIntelPriceAfter.Text = $"INTC (After): ${intel.PostMarketPrice.Value:F2}";
+                        txtIntelPriceAfter.Visibility = Visibility.Visible;
+                    }
+                    else if (intel.RegularPrice.HasValue)
+                    {
+                        txtIntelPriceRegular.Text = $"INTC: ${intel.RegularPrice.Value:F2}";
+                        txtIntelPriceRegular.Visibility = Visibility.Visible;
+                    }
+                }
             });
         }
         catch { }

@@ -45,10 +45,17 @@
                 <!-- Market data: Intel, BTC, Strike Radar (centered, stays put when Restore appears) -->
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center"
                             HorizontalAlignment="Center">
-                    <TextBlock x:Name="txtIntelPrice" Text="INTC: --"
-                               Foreground="#CCCCCC" Margin="0,0,24,0"
-                               VerticalAlignment="Center" FontSize="15" />
-                    <TextBlock x:Name="txtBtcPrice" Text="BTC: --"
+                    <!-- Intel prices: only one visible at a time based on market session -->
+                    <TextBlock x:Name="txtIntelPriceRegular" Text="INTC: $00.00"
+                               Foreground="#CCCCCC" Margin="8"
+                               VerticalAlignment="Center" FontSize="15" Visibility="Collapsed" />
+                    <TextBlock x:Name="txtIntelPricePre" Text="INTC (Pre): $00.00"
+                               Foreground="#E8C547" Margin="8"
+                               VerticalAlignment="Center" FontSize="15" Visibility="Collapsed" />
+                    <TextBlock x:Name="txtIntelPriceAfter" Text="INTC (After): $00.00"
+                               Foreground="#E87E47" Margin="8"
+                               VerticalAlignment="Center" FontSize="15" Visibility="Collapsed" />
+                    <TextBlock x:Name="txtBtcPrice" Text="BTC: $00,000"
                                Foreground="#CCCCCC" Margin="0,0,24,0"
                                VerticalAlignment="Center" FontSize="15" />
                     <TextBlock x:Name="txtStrikeRadar" Text="Strike: --"
