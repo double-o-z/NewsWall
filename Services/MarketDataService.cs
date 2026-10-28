@@ -20,7 +20,7 @@ public class MarketDataService : IMarketDataService
     {
         try
         {
-            var url = "https://query2.finance.yahoo.com/v8/finance/chart/INTC?range=1d&interval=1d&region=US&lang=en-US";
+            var url = "https://query2.finance.yahoo.com/v8/finance/chart/INTC?range=1d&interval=1d&region=US&lang=en-US&includePrePost=true";
             var json = await Http.GetStringAsync(url);
             using var doc = JsonDocument.Parse(json);
             var meta = doc.RootElement
