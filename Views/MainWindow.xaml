@@ -46,11 +46,11 @@
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center"
                             HorizontalAlignment="Center">
                     <!-- Intel prices: only one visible at a time based on market session -->
-                    <TextBlock x:Name="txtIntelPriceRegular" Text="INTC: $00.00"
-                               Foreground="#CCCCCC" Margin="8"
-                               VerticalAlignment="Center" FontSize="15" Visibility="Collapsed" />
                     <TextBlock x:Name="txtIntelPricePre" Text="INTC (Pre): $00.00"
                                Foreground="#E8C547" Margin="8"
+                               VerticalAlignment="Center" FontSize="15" Visibility="Collapsed" />
+                    <TextBlock x:Name="txtIntelPriceRegular" Text="INTC: $00.00"
+                               Foreground="#CCCCCC" Margin="8"
                                VerticalAlignment="Center" FontSize="15" Visibility="Collapsed" />
                     <TextBlock x:Name="txtIntelPriceAfter" Text="INTC (After): $00.00"
                                Foreground="#E87E47" Margin="8"

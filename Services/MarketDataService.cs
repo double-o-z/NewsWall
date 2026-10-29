@@ -35,10 +35,10 @@ public class MarketDataService : IMarketDataService
             if (meta.TryGetProperty("regularMarketPrice", out var regProp) && regProp.ValueKind == JsonValueKind.Number)
                 regularPrice = regProp.GetDecimal();
 
-            if (meta.TryGetProperty("preMarketPrice", out var preProp) && preProp.ValueKind == JsonValueKind.Number)
+            if (meta.TryGetProperty("fulldayPrice", out var preProp) && preProp.ValueKind == JsonValueKind.Number)
                 preMarketPrice = preProp.GetDecimal();
 
-            if (meta.TryGetProperty("postMarketPrice", out var postProp) && postProp.ValueKind == JsonValueKind.Number)
+            if (meta.TryGetProperty("fulldayPrice", out var postProp) && postProp.ValueKind == JsonValueKind.Number)
                 postMarketPrice = postProp.GetDecimal();
 
             var session = DetermineMarketSession(meta);

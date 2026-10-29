@@ -128,6 +128,7 @@ public partial class MainWindow : Window
                 // Show the price matching the current session, with fallback to any available price
                 bool shown = false;
 
+
                 // Session-specific price first
                 if (intel.Session == MarketSession.PreMarket && intel.PreMarketPrice.HasValue)
                 {
@@ -135,16 +136,19 @@ public partial class MainWindow : Window
                     txtIntelPricePre.Visibility = Visibility.Visible;
                     shown = true;
                 }
-                else if (intel.Session == MarketSession.AfterMarket && intel.PostMarketPrice.HasValue)
-                {
-                    txtIntelPriceAfter.Text = $"INTC (After): ${intel.PostMarketPrice.Value:F2}";
-                    txtIntelPriceAfter.Visibility = Visibility.Visible;
-                    shown = true;
-                }
-                else if (intel.Session == MarketSession.Regular && intel.RegularPrice.HasValue)
+
+
+                if (intel.RegularPrice.HasValue)
                 {
                     txtIntelPriceRegular.Text = $"INTC: ${intel.RegularPrice.Value:F2}";
                     txtIntelPriceRegular.Visibility = Visibility.Visible;
+                    shown = true;
+                }
+                
+                if (intel.Session == MarketSession.AfterMarket && intel.PostMarketPrice.HasValue)
+                {
+                    txtIntelPriceAfter.Text = $"INTC (After): ${intel.PostMarketPrice.Value:F2}";
+                    txtIntelPriceAfter.Visibility = Visibility.Visible;
                     shown = true;
                 }
 
